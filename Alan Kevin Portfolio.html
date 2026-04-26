@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alan Kevin — Cantor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #0e0e0e;
+      --paper: #f5f3ef;
+      --blue-dark: #0e1520;
+      --blue-mid: #0e1a2e;
+      --gold: #b89a6a;
+      --gold-light: #d4bb8e;
+      --muted: #7a7670;
+      --line: rgba(14,14,14,0.12);
+      --line-light: rgba(245,243,239,0.1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+    }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--paper);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(245,243,239,0.7);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--gold); }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      height: 100vh;
+      min-height: 680px;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+
+    .hero-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(105deg, rgba(14,21,32,0.82) 0%, rgba(14,21,32,0.5) 55%, rgba(14,21,32,0.15) 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 0 3rem 5.5rem;
+      max-width: 680px;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.3s;
+    }
+
+    .hero-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(4rem, 10vw, 8rem);
+      font-weight: 300;
+      line-height: 0.9;
+      color: #f5f3ef;
+      letter-spacing: -0.02em;
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.5s;
+    }
+
+    .hero-name em { font-style: italic; color: var(--gold-light); }
+
+    .hero-tagline {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      color: rgba(245,243,239,0.5);
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.7s;
+    }
+
+    .hero-cta {
+      margin-top: 3rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-decoration: none;
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.9s;
+      transition: gap 0.3s;
+    }
+
+    .hero-cta:hover { gap: 1.5rem; }
+    .hero-cta::after { content: ''; display: block; width: 40px; height: 1px; background: var(--gold); transition: width 0.3s; }
+    .hero-cta:hover::after { width: 60px; }
+
+    /* SHARED */
+    .section-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 300;
+      line-height: 1.1;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 3rem;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--line); }
+    .divider-mark { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: var(--gold); }
+
+    /* SOBRE */
+    .sobre {
+      padding: 8rem 3rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .sobre-top {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 6rem;
+      align-items: start;
+      margin-bottom: 4rem;
+    }
+
+    .sobre-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 5vw, 3.8rem);
+      font-weight: 300;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      position: sticky;
+      top: 7rem;
+    }
+
+    .sobre-heading em { font-style: italic; color: var(--gold); }
+
+    .sobre-body p {
+      font-size: 0.95rem;
+      line-height: 1.95;
+      color: #3a3835;
+      margin-bottom: 1.4rem;
+    }
+
+    .sobre-fotos {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.75rem;
+    }
+
+    .sobre-foto {
+      aspect-ratio: 3/4;
+      overflow: hidden;
+      background: #d0cdc8;
+    }
+
+    .sobre-foto img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      filter: sepia(20%) contrast(1.05);
+      transition: transform 0.6s ease, filter 0.4s;
+    }
+
+    .sobre-foto:hover img { transform: scale(1.04); filter: sepia(0%) contrast(1.05); }
+
+    /* MÚSICAS */
+    .musicas {
+      background: linear-gradient(160deg, var(--blue-dark) 0%, var(--blue-mid) 60%, #0a0e16 100%);
+      padding: 8rem 3rem;
+    }
+
+    .musicas-inner { max-width: 1100px; margin: 0 auto; }
+
+    .musicas-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+
+    .musica-card {
+      display: block;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .musica-cover {
+      width: 100%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .musica-card:hover .musica-cover { transform: scale(1.04); }
+
+    .musica-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      aspect-ratio: 1/1;
+      background: linear-gradient(to top, rgba(14,21,32,0.9) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.35s;
+      display: flex;
+      align-items: flex-end;
+      padding: 1.5rem;
+    }
+
+    .musica-card:hover .musica-overlay { opacity: 1; }
+
+    .musica-play {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.68rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .musica-play svg { width: 20px; height: 20px; fill: var(--gold); }
+
+    .musica-info { padding: 1.25rem 0 0; }
+
+    .musica-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--paper);
+      margin-bottom: 0.25rem;
+    }
+
+    .musica-sub {
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(245,243,239,0.35);
+    }
+
+    /* PROJETOS */
+    .projetos {
+      background: linear-gradient(160deg, var(--blue-dark) 0%, var(--blue-mid) 60%, #0a0e16 100%);
+      padding: 2rem 3rem 8rem;
+      border-top: 1px solid var(--line-light);
+    }
+
+    .projetos-inner { max-width: 1100px; margin: 0 auto; }
+
+    .projetos-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-top: 4rem;
+    }
+
+    .projeto-card {
+      display: block;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .projeto-cover {
+      width: 100%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .projeto-card:hover .projeto-cover { transform: scale(1.04); }
+
+    .projeto-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      aspect-ratio: 1/1;
+      background: linear-gradient(to top, rgba(14,21,32,0.9) 0%, transparent 55%);
+      opacity: 0;
+      transition: opacity 0.35s;
+      display: flex;
+      align-items: flex-end;
+      padding: 1.2rem;
+    }
+
+    .projeto-card:hover .projeto-overlay { opacity: 1; }
+
+    .projeto-play {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.62rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .projeto-play svg { width: 16px; height: 16px; fill: var(--gold); }
+
+    .projeto-info { padding: 1rem 0 0; }
+
+    .projeto-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--paper);
+      line-height: 1.3;
+    }
+
+    /* GALERIA */
+    .galeria {
+      padding: 8rem 3rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .galeria-grid {
+      columns: 3;
+      column-gap: 0.75rem;
+      margin-top: 3.5rem;
+    }
+
+    .galeria-item {
+      break-inside: avoid;
+      margin-bottom: 0.75rem;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .galeria-item img {
+      width: 100%;
+      display: block;
+      filter: grayscale(15%) contrast(1.05);
+      transition: transform 0.6s ease, filter 0.4s;
+    }
+
+    .galeria-item:hover img { transform: scale(1.03); filter: grayscale(0%) contrast(1.05); }
+
+    .galeria-caption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 2.5rem 1rem 0.85rem;
+      background: linear-gradient(to top, rgba(14,21,32,0.85), transparent);
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,243,239,0.75);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .galeria-item:hover .galeria-caption { opacity: 1; }
+
+    .galeria-placeholder {
+      aspect-ratio: 4/5;
+      background: #e8e5e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .galeria-placeholder span {
+      font-size: 0.58rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* EVENTOS */
+    .eventos {
+      background: linear-gradient(160deg, var(--blue-dark) 0%, var(--blue-mid) 60%, #0a0e16 100%);
+      padding: 8rem 3rem;
+    }
+
+    .eventos-inner { max-width: 1100px; margin: 0 auto; }
+
+    .eventos-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      margin-top: 4rem;
+      border: 1px solid var(--line-light);
+    }
+
+    .evento-card {
+      padding: 2.5rem;
+      border-right: 1px solid var(--line-light);
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+    }
+
+    .evento-card:nth-child(3n) { border-right: none; }
+    .evento-card:nth-child(n+4) { border-top: 1px solid var(--line-light); }
+
+    .evento-card::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+
+    .evento-card:hover { background: rgba(245,243,239,0.03); }
+    .evento-card:hover::before { transform: scaleX(1); }
+
+    .evento-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.8rem;
+      color: rgba(184,154,106,0.15);
+      line-height: 1;
+      margin-bottom: 1.25rem;
+      font-weight: 300;
+    }
+
+    .evento-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem;
+      font-weight: 400;
+      color: var(--paper);
+      margin-bottom: 0.65rem;
+    }
+
+    .evento-desc {
+      font-size: 0.8rem;
+      line-height: 1.8;
+      color: rgba(245,243,239,0.4);
+    }
+
+    /* DEPOIMENTOS */
+    .depoimentos {
+      background: #f0ede7;
+      padding: 8rem 3rem;
+    }
+
+    .depoimentos-inner { max-width: 1100px; margin: 0 auto; }
+
+    .depo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+      margin-top: 4rem;
+    }
+
+    .depo-card { position: relative; padding-top: 2rem; }
+
+    .depo-card::before {
+      content: '"';
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 5rem;
+      line-height: 1;
+      color: var(--gold);
+      opacity: 0.25;
+      position: absolute;
+      top: -0.5rem; left: -0.5rem;
+    }
+
+    .depo-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-style: italic;
+      line-height: 1.75;
+      color: #2a2825;
+      margin-bottom: 1.5rem;
+    }
+
+    .depo-author {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .depo-role {
+      display: block;
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      color: var(--gold);
+      margin-top: 0.25rem;
+    }
+
+    /* CANAIS */
+    .canais {
+      background: linear-gradient(160deg, var(--blue-dark) 0%, var(--blue-mid) 60%, #0a0e16 100%);
+      padding: 8rem 3rem;
+    }
+
+    .canais-inner { max-width: 1100px; margin: 0 auto; }
+
+    .canais-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 4rem;
+    }
+
+    .canal-card {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 2rem 2.5rem;
+      border: 1px solid var(--line-light);
+      text-decoration: none;
+      transition: border-color 0.3s, background 0.3s;
+    }
+
+    .canal-card:hover { border-color: var(--gold); background: rgba(184,154,106,0.05); }
+
+    .canal-icon { width: 42px; height: 42px; flex-shrink: 0; fill: var(--gold); }
+
+    .canal-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      color: var(--paper);
+      margin-bottom: 0.2rem;
+    }
+
+    .canal-handle {
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      color: rgba(245,243,239,0.3);
+    }
+
+    /* CONTATO */
+    .contato {
+      background: var(--ink);
+      padding: 8rem 3rem;
+      text-align: center;
+    }
+
+    .contato-inner { max-width: 580px; margin: 0 auto; }
+
+    .contato-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 300;
+      color: var(--paper);
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+
+    .contato-heading em { font-style: italic; color: var(--gold-light); }
+
+    .contato-sub {
+      font-size: 0.85rem;
+      line-height: 1.8;
+      color: rgba(245,243,239,0.35);
+      margin-bottom: 4rem;
+    }
+
+    .contato-btns {
+      display: flex;
+      gap: 1.25rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .contato-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.1rem 2.25rem;
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: 'Jost', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 400;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .contato-btn:hover { background: var(--gold); color: var(--ink); }
+    .contato-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+    /* FOOTER */
+    footer {
+      background: #060606;
+      padding: 2.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(245,243,239,0.05);
+    }
+
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      letter-spacing: 0.15em;
+      color: rgba(245,243,239,0.25);
+    }
+
+    .footer-copy { font-size: 0.62rem; letter-spacing: 0.12em; color: rgba(245,243,239,0.15); }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      nav { padding: 1.25rem 1.5rem; }
+      .nav-links { display: none; }
+      .hero-content { padding: 0 1.5rem 4rem; }
+      .sobre { padding: 5rem 1.5rem; }
+      .sobre-top { grid-template-columns: 1fr; gap: 2.5rem; }
+      .sobre-heading { position: static; }
+      .sobre-fotos { grid-template-columns: repeat(3, 1fr); }
+      .musicas, .projetos, .eventos, .canais, .depoimentos { padding: 5rem 1.5rem; }
+      .musicas-grid, .eventos-grid { grid-template-columns: 1fr; }
+      .projetos-grid { grid-template-columns: repeat(2, 1fr); }
+      .evento-card { border-right: none !important; border-bottom: 1px solid var(--line-light); }
+      .evento-card:last-child { border-bottom: none; }
+      .galeria { padding: 5rem 1.5rem; }
+      .galeria-grid { columns: 2; }
+      .depo-grid, .canais-cards { grid-template-columns: 1fr; }
+      .contato { padding: 5rem 1.5rem; }
+      footer { flex-direction: column; gap: 0.75rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="#" class="nav-logo">Alan Kevin</a>
+    <ul class="nav-links">
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#musicas">Músicas</a></li>
+      <li><a href="#galeria">Galeria</a></li>
+      <li><a href="#eventos">Ministério</a></li>
+      <li><a href="#contato">Contato</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <img class="hero-img" src="Hero.png" alt="Alan Kevin" />
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Cantor Gospel · São Paulo, Brasil</p>
+      <h1 class="hero-name">Alan<br><em>Kevin</em></h1>
+      <p class="hero-tagline">Louvor · Programação Musical · Eventos Especiais</p>
+      <a href="#contato" class="hero-cta">Solicitar presença</a>
+    </div>
+  </section>
+
+  <!-- SOBRE -->
+  <section id="sobre" class="sobre">
+    <div class="sobre-top">
+      <div class="reveal">
+        <p class="section-label">Sobre</p>
+        <h2 class="sobre-heading">Música como<br><em>vocação</em></h2>
+      </div>
+      <div class="sobre-body reveal">
+        <p>
+          Canto desde os 4 anos. Cresci na Igreja Adventista do Sétimo Dia, onde a música 
+          sempre foi muito mais do que participação — era o lugar onde me sentia inteiro e 
+          onde aprendi que a voz pode ser um instrumento de Deus. Passei por corais infantis 
+          e adultos, orquestras e grupos vocais, sem nunca deixar de estar presente no 
+          ministério musical de cada comunidade por onde passei.
+        </p>
+        <p>
+          Com o tempo, essas experiências me levaram a integrar grupos e produções cada vez 
+          mais relevantes dentro da Igreja Adventista, e foi nesse caminho que percebi que 
+          minha voz tinha um propósito além da minha comunidade local. Hoje canto e produzo 
+          músicas cristãs de forma independente e profissional, dedicando meu dom inteiramente 
+          ao ministério para o qual fui chamado — e que Deus tem abençoado a cada passo.
+        </p>
+      </div>
+    </div>
+    <div class="sobre-fotos reveal">
+      <div class="sobre-foto"><img src="AK1.png" alt="Alan Kevin criança no coral" /></div>
+      <div class="sobre-foto"><img src="AK2.png" alt="Alan Kevin criança cantando" /></div>
+      <div class="sobre-foto"><img src="AK3.png" alt="Alan Kevin no coral infantil" /></div>
+      <div class="sobre-foto"><img src="AK4.png" alt="Alan Kevin jovem no ministério" /></div>
+      <div class="sobre-foto"><img src="AK5.jpg" alt="Alan Kevin no coral adulto" /></div>
+    </div>
+  </section>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-mark">✦</div><div class="divider-line"></div></div>
+
+  <!-- MÚSICAS -->
+  <section id="musicas" class="musicas">
+    <div class="musicas-inner">
+      <div class="reveal">
+        <p class="section-label">Discografia</p>
+        <h2 class="section-title" style="color:var(--paper)">Músicas <em style="font-style:italic;color:var(--gold-light)">gravadas</em></h2>
+      </div>
+      <div class="musicas-grid">
+        <a href="https://tr.ee/k_Sl86BoXR" target="_blank" rel="noopener" class="musica-card reveal">
+          <img class="musica-cover" src="Sentido.png" alt="Sentido" />
+          <div class="musica-overlay">
+            <div class="musica-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Ouvir agora</div>
+          </div>
+          <div class="musica-info">
+            <div class="musica-title">Sentido</div>
+            <div class="musica-sub">Single · Alan Kevin</div>
+          </div>
+        </a>
+        <a href="https://tr.ee/XnliMenREN" target="_blank" rel="noopener" class="musica-card reveal">
+          <img class="musica-cover" src="Nunca_Mais_Capa.png" alt="Nunca Mais" />
+          <div class="musica-overlay">
+            <div class="musica-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Ouvir agora</div>
+          </div>
+          <div class="musica-info">
+            <div class="musica-title">Nunca Mais</div>
+            <div class="musica-sub">Single · Alan Kevin</div>
+          </div>
+        </a>
+        <a href="https://artists.landr.com/madrugada2403" target="_blank" rel="noopener" class="musica-card reveal">
+          <img class="musica-cover" src="Madrugada_Podcast_Cover__1___1_.png" alt="Madrugada" />
+          <div class="musica-overlay">
+            <div class="musica-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Ouvir agora</div>
+          </div>
+          <div class="musica-info">
+            <div class="musica-title">Madrugada</div>
+            <div class="musica-sub">Single · Alan Kevin</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJETOS -->
+  <section class="projetos">
+    <div class="projetos-inner">
+      <div class="reveal" style="padding-top:5rem">
+        <p class="section-label">Colaborações</p>
+        <h2 class="section-title" style="color:var(--paper)">Projetos em que <em style="font-style:italic;color:var(--gold-light)">participei</em></h2>
+      </div>
+      <div class="projetos-grid">
+        <a href="https://youtu.be/kAKoG7sJjiE?si=uY_eBCwNo8KTu4cz" target="_blank" rel="noopener" class="projeto-card reveal">
+          <img class="projeto-cover" src="thelovingkind.avif" alt="The Loving Kind" />
+          <div class="projeto-overlay"><div class="projeto-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Assistir</div></div>
+          <div class="projeto-info"><div class="projeto-title">The Loving Kind</div></div>
+        </a>
+        <a href="https://youtu.be/aj761To-K_U?si=9NC3GQazv2AI96Zu" target="_blank" rel="noopener" class="projeto-card reveal">
+          <img class="projeto-cover" src="academiacantaarautos.avif" alt="Academia canta Arautos" />
+          <div class="projeto-overlay"><div class="projeto-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Assistir</div></div>
+          <div class="projeto-info"><div class="projeto-title">Academia da Voz<br>canta Arautos</div></div>
+        </a>
+        <a href="https://youtu.be/x43SDoNZJIo?si=6apojADkMNeQ63XJ" target="_blank" rel="noopener" class="projeto-card reveal">
+          <img class="projeto-cover" src="heroidafe.avif" alt="Herói da Fé" />
+          <div class="projeto-overlay"><div class="projeto-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Assistir</div></div>
+          <div class="projeto-info"><div class="projeto-title">Herói da Fé</div></div>
+        </a>
+        <a href="https://youtu.be/ynHoPQq241s?si=8DanToEoUDIdKUgi" target="_blank" rel="noopener" class="projeto-card reveal">
+          <img class="projeto-cover" src="nossageracao.png" alt="Histórias Animadas da Bíblia" />
+          <div class="projeto-overlay"><div class="projeto-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Assistir</div></div>
+          <div class="projeto-info"><div class="projeto-title">Histórias Animadas<br>da Bíblia</div></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALERIA -->
+  <section id="galeria" class="galeria">
+    <div class="reveal">
+      <p class="section-label">Galeria</p>
+      <h2 class="section-title">Momentos <em style="font-style:italic;color:var(--gold)">em palco</em></h2>
+    </div>
+    <div class="galeria-grid reveal">
+      <div class="galeria-item">
+        <img src="IMG_5700.jpeg" alt="Alan Kevin cantando" />
+        <div class="galeria-caption">Louvor · Igreja Adventista</div>
+      </div>
+      <div class="galeria-item">
+        <img src="IMG_5699.jpeg" alt="Alan Kevin no palco com banda" />
+        <div class="galeria-caption">Programação musical com banda</div>
+      </div>
+      <div class="galeria-item">
+        <div class="galeria-placeholder"><span>Em breve</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-mark">✦</div><div class="divider-line"></div></div>
+
+  <!-- MINISTÉRIO -->
+  <section id="eventos" class="eventos">
+    <div class="eventos-inner">
+      <div class="reveal">
+        <p class="section-label">Ministério</p>
+        <h2 class="section-title" style="color:var(--paper)">Onde posso <em style="font-style:italic;color:var(--gold-light)">ministrar</em></h2>
+      </div>
+      <div class="eventos-grid">
+        <div class="evento-card reveal"><div class="evento-num">01</div><h3 class="evento-title">Programação Musical</h3><p class="evento-desc">Louvor e adoração em cultos regulares, séries temáticas e programações especiais da sua igreja.</p></div>
+        <div class="evento-card reveal"><div class="evento-num">02</div><h3 class="evento-title">Casamentos</h3><p class="evento-desc">Cerimônias religiosas com músicas selecionadas para tornar o momento ainda mais sagrado e memorável.</p></div>
+        <div class="evento-card reveal"><div class="evento-num">03</div><h3 class="evento-title">Semana de Oração</h3><p class="evento-desc">Ministério de louvor durante semanas evangelísticas e de avivamento espiritual.</p></div>
+        <div class="evento-card reveal"><div class="evento-num">04</div><h3 class="evento-title">Semana Santa</h3><p class="evento-desc">Programações da Paixão de Cristo, Páscoa e outros momentos litúrgicos do calendário cristão.</p></div>
+        <div class="evento-card reveal"><div class="evento-num">05</div><h3 class="evento-title">Santa Ceia</h3><p class="evento-desc">Ministério musical especial para cultos de comunhão, com repertório pensado para cada momento.</p></div>
+        <div class="evento-card reveal"><div class="evento-num">06</div><h3 class="evento-title">Outros Eventos</h3><p class="evento-desc">Congressos, retiros, formaturas. Entre em contato para verificar disponibilidade.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEPOIMENTOS -->
+  <section class="depoimentos">
+    <div class="depoimentos-inner">
+      <div class="reveal">
+        <p class="section-label">Depoimentos</p>
+        <h2 class="section-title">O que dizem <em style="font-style:italic;color:var(--gold)">sobre Alan</em></h2>
+      </div>
+      <div class="depo-grid">
+        <div class="depo-card reveal">
+          <p class="depo-text">Alan tem um dom especial de conduzir a congregação à presença de Deus. Sua voz e sensibilidade espiritual fazem toda a diferença.</p>
+          <div class="depo-author">Pastor [Nome]<span class="depo-role">Igreja [Nome] · São Paulo</span></div>
+        </div>
+        <div class="depo-card reveal">
+          <p class="depo-text">Ter o Alan cantando no nosso casamento foi um presente. O momento foi completamente transformado pela sua ministração.</p>
+          <div class="depo-author">[Nome do casal]<span class="depo-role">Cerimônia de casamento · 2024</span></div>
+        </div>
+        <div class="depo-card reveal">
+          <p class="depo-text">Convidamos Alan para a nossa Semana Santa e a resposta da congregação foi impressionante. Voltaremos a convidá-lo com certeza.</p>
+          <div class="depo-author">Coordenação de Programação<span class="depo-role">Igreja [Nome] · [Cidade]</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CANAIS -->
+  <section class="canais">
+    <div class="canais-inner">
+      <div class="reveal">
+        <p class="section-label">Acompanhe</p>
+        <h2 class="section-title" style="color:var(--paper)">Canais <em style="font-style:italic;color:var(--gold-light)">oficiais</em></h2>
+      </div>
+      <div class="canais-cards">
+        <a href="https://www.instagram.com/alan_kevin" target="_blank" rel="noopener" class="canal-card reveal">
+          <svg class="canal-icon" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          <div><div class="canal-name">Instagram</div><div class="canal-handle">@alan_kevin</div></div>
+        </a>
+        <a href="https://www.youtube.com/@alan_kevin/featured" target="_blank" rel="noopener" class="canal-card reveal">
+          <svg class="canal-icon" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          <div><div class="canal-name">YouTube</div><div class="canal-handle">@alan_kevin</div></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTATO -->
+  <section id="contato" class="contato">
+    <div class="contato-inner">
+      <p class="section-label reveal" style="margin-bottom:1.5rem">Contato</p>
+      <h2 class="contato-heading reveal">Vamos conversar<br><em>sobre o seu evento</em></h2>
+      <p class="contato-sub reveal">Para verificar disponibilidade de datas, condições e repertório,<br>entre em contato pelo WhatsApp ou por e-mail.</p>
+      <div class="contato-btns reveal">
+        <a href="https://wa.me/5519994424439?text=Olá%20Alan!%20Gostaria%20de%20conversar%20sobre%20uma%20programação%20musical." target="_blank" rel="noopener" class="contato-btn">
+          <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </a>
+        <a href="mailto:agendaalankevin@gmail.com" class="contato-btn">
+          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          E-mail
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="footer-logo">Alan Kevin</span>
+    <span class="footer-copy">© 2025 · Cantor Gospel · São Paulo</span>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
