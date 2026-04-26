@@ -425,15 +425,19 @@
     .galeria-item:hover img { transform: scale(1.03); filter: grayscale(0%) contrast(1.05); }
 
     .galeria-caption {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      padding: 2.5rem 1rem 0.85rem;
-      background: linear-gradient(to top, rgba(14,21,32,0.85), transparent);
-      font-size: 0.62rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(245,243,239,0.75);
-    }
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 2.5rem 1rem 0.85rem;
+  background: linear-gradient(to top, rgba(14,21,32,0.85), transparent);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(245,243,239,0.75);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.galeria-item:hover .galeria-caption { opacity: 1; }
 
 
     .galeria-placeholder {
